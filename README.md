@@ -20,15 +20,37 @@ A Python-based system for generating thousands of unique procedural geometric fi
 git clone <your-repo-url>
 cd figure_procedural
 
+# Create and activate virtual environment
+python3 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
 # Install dependencies
-pip install pillow
+pip install -r requirements.txt
 ```
 
 ## Quick Start
 
-### 1. Generate Figures
+### Option 1: All-in-One Pipeline (Recommended)
 
-#### Simple Geometric Figures (Recommended)
+Generate figures and create a collage in one command:
+
+```bash
+# Generate figures with custom parameters and create a 10×10 collage
+python3 pipeline.py --a=100,130 --b=50,100 --output_folder ./my_figures --grid_size 10x10
+
+# Full pipeline with filtering and flipping
+python3 pipeline.py --a=100,150 --stroke_color=000000,444444 --output_folder ./figures \
+         --grid_size 8x8 --flip 0.5 --select_only_from "a100,col000000"
+
+# Generate only (skip collage)
+python3 pipeline.py --a=100,130 --b=50,100 --output_folder ./figures --skip_collage
+```
+
+### Option 2: Manual Workflow
+
+#### 1. Generate Figures
+
+**Simple Geometric Figures (Recommended):**
 ```bash
 # Generate figures with simplified geometry
 python3 generate_figures_simple.py
@@ -36,12 +58,12 @@ python3 generate_figures_simple.py
 
 This creates figures with the following parameters:
 - `a`, `b`, `c`, `d`, `e`, `f`, `g` - Various distance measurements (px)
-- `stroke_width` - Line thickness (1, 3, 5 px)
+- `stroke_width` - Line thickness (3, 6 px)
 - `stroke_color` - Hex colors (#000000, #222222, #444444, #666666)
 
-**Output:** ~15,552 unique 300×500px images in `./data_simple/`
+**Output:** Thousands of unique 300×500px images in `./data_simple/`
 
-#### Angled Figures (Advanced)
+**Angled Figures (Advanced):**
 ```bash
 # Generate figures with angular transformations
 python3 generate_figures.py
@@ -51,7 +73,7 @@ Includes angle parameters for more complex compositions.
 
 **Output:** ~7,776 unique images in `./data/`
 
-### 2. Create Collages
+#### 2. Create Collages
 
 ```bash
 # Basic 5×5 grid collage
@@ -102,18 +124,32 @@ fig_a130_b100_c50_d40_e20_f20_g30_w3_col000000.png
 
 ## Example Outputs
 
+All examples generated using the pipeline script with custom parameters.
+
 ### Pure Black Figures (No Flipping)
 6×6 grid with `--select_only_from "col000000"`
+
+```bash
+python3 create_collages.py -g 6x6 -i ./data_simple -s "col000000"
+```
 
 ![Example 1](examples/collage_6x6_flip0_00.png)
 
 ### Gray Figures with 50% Flip
 6×6 grid with `--select_only_from "col444444" --flip 0.5`
 
+```bash
+python3 create_collages.py -g 6x6 -i ./data_simple -s "col444444" --flip 0.5
+```
+
 ![Example 2](examples/collage_6x6_flip0_50.png)
 
 ### Thin Strokes with 30% Flip
-8×8 grid with `--select_only_from "w3,c50" --flip 0.3`
+8×8 grid with `--select_only_from "w3" --flip 0.3`
+
+```bash
+python3 create_collages.py -g 8x8 -i ./data_simple -s "w3" --flip 0.3
+```
 
 ![Example 3](examples/collage_8x8_flip0_30.png)
 
@@ -121,9 +157,12 @@ fig_a130_b100_c50_d40_e20_f20_g30_w3_col000000.png
 
 ```
 figure_procedural/
+├── pipeline.py                 # All-in-one generation + collage pipeline
 ├── generate_figures.py         # Angled figure generator
 ├── generate_figures_simple.py  # Simple figure generator (recommended)
 ├── create_collages.py          # Collage creation tool
+├── requirements.txt            # Python dependencies
+├── venv/                       # Virtual environment (gitignored)
 ├── data/                       # Generated angled figures (gitignored)
 ├── data_simple/                # Generated simple figures (gitignored)
 ├── collages/                   # Output collages (gitignored)

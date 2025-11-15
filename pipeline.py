@@ -9,6 +9,7 @@ import os
 import sys
 import argparse
 import subprocess
+from tqdm import tqdm
 
 def parse_range_param(param_str, as_int=True):
     """
@@ -172,20 +173,44 @@ Examples:
         # Create output directory
         os.makedirs(args.output_folder, exist_ok=True)
 
+        # Validate parameter combinations
+        max_a = max(default_param_ranges['a'])
+        max_b = max(default_param_ranges['b'])
+        max_c = max(default_param_ranges['c'])
+        max_d = max(default_param_ranges['d'])
+
+        if max_a + max_b + max_c + max_d >= 500:
+            print(f"\n⚠️  WARNING: Maximum a+b+c+d = {max_a}+{max_b}+{max_c}+{max_d} = {max_a+max_b+max_c+max_d} >= 500px")
+            print("This exceeds the canvas height of 500px and may cause visual issues.")
+            response = input("Do you want to continue anyway? (y/N): ")
+            if response.lower() != 'y':
+                print("Aborted.")
+                sys.exit(0)
+
         # Calculate total combinations
         total = 1
         for param_range in default_param_ranges.values():
             total *= len(param_range)
 
-        print(f"Generating {total:,} images...")
-        print(f"Output directory: {args.output_folder}")
+        # Warn if generating many images
+        if total > 1000:
+            print(f"\n⚠️  WARNING: You are about to generate {total:,} images.")
+            print(f"This may take a long time and use significant disk space.")
+            response = input("Do you want to proceed? (y/N): ")
+            if response.lower() != 'y':
+                print("Aborted.")
+                sys.exit(0)
+
+        print(f"\nGenerating {total:,} images...")
+        print(f"Output directory: {args.output_folder}\n")
 
         # Generate all combinations
-        count = 0
         param_names = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'stroke_width', 'stroke_color']
         param_values = [default_param_ranges[name] for name in param_names]
 
-        for combination in product(*param_values):
+        # Use tqdm for progress bar
+        combinations = list(product(*param_values))
+        for combination in tqdm(combinations, desc="Generating figures", unit="img"):
             a, b, c, d, e, f, g, stroke_width, stroke_color = combination
 
             # Generate the figure
@@ -199,13 +224,7 @@ Examples:
             # Save the image
             img.save(filepath, 'PNG')
 
-            count += 1
-
-            # Progress update every 100 images
-            if count % 100 == 0:
-                print(f"Progress: {count:,}/{total:,} ({100*count/total:.1f}%)")
-
-        print(f"\nCompleted! Generated {count:,} images in {args.output_folder}/")
+        print(f"Completed! Generated {total:,} images in {args.output_folder}/")
 
         print("\n✓ Figure generation complete")
 
