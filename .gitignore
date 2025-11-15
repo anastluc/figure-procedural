@@ -1,0 +1,46 @@
+# Image files (except examples)
+*.png
+!examples/*.png
+*.jpg
+*.jpeg
+*.gif
+*.bmp
+*.tiff
+
+# Large data directories
+data/
+data_simple/
+collages/
+test*/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
