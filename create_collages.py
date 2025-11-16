@@ -17,7 +17,7 @@ from PIL import Image
 CANVAS_WIDTH = 300
 CANVAS_HEIGHT = 500
 
-def create_collage(image_paths, cols, rows, output_path, flip_chance=0.0):
+def create_collage(image_paths, cols, rows, output_path, flip_hor=0.0, flip_ver=0.0):
     """
     Create a collage from a list of image paths.
 
@@ -26,7 +26,8 @@ def create_collage(image_paths, cols, rows, output_path, flip_chance=0.0):
     - cols: number of columns in grid
     - rows: number of rows in grid
     - output_path: path to save the collage
-    - flip_chance: probability (0.0-1.0) that an image will be flipped horizontally
+    - flip_hor: probability (0.0-1.0) that an image will be flipped horizontally
+    - flip_ver: probability (0.0-1.0) that an image will be flipped vertically
     """
     num_images = cols * rows
 
@@ -40,7 +41,8 @@ def create_collage(image_paths, cols, rows, output_path, flip_chance=0.0):
     collage = Image.new('RGB', (collage_width, collage_height), 'white')
 
     # Track flips for statistics
-    flipped_count = 0
+    flipped_hor_count = 0
+    flipped_ver_count = 0
 
     # Place images in grid
     for idx, img_path in enumerate(selected_images):
@@ -55,10 +57,15 @@ def create_collage(image_paths, cols, rows, output_path, flip_chance=0.0):
         try:
             img = Image.open(img_path)
 
-            # Randomly flip image based on flip_chance
-            if random.random() < flip_chance:
+            # Randomly flip image horizontally based on flip_hor
+            if random.random() < flip_hor:
                 img = img.transpose(Image.FLIP_LEFT_RIGHT)
-                flipped_count += 1
+                flipped_hor_count += 1
+
+            # Randomly flip image vertically based on flip_ver
+            if random.random() < flip_ver:
+                img = img.transpose(Image.FLIP_TOP_BOTTOM)
+                flipped_ver_count += 1
 
             collage.paste(img, (x, y))
         except Exception as e:
@@ -72,8 +79,10 @@ def create_collage(image_paths, cols, rows, output_path, flip_chance=0.0):
     # Save collage
     collage.save(output_path, 'PNG')
 
-    if flip_chance > 0:
-        print(f"Flipped {flipped_count}/{num_images} images ({100*flipped_count/num_images:.1f}%)")
+    if flip_hor > 0:
+        print(f"Flipped horizontally {flipped_hor_count}/{num_images} images ({100*flipped_hor_count/num_images:.1f}%)")
+    if flip_ver > 0:
+        print(f"Flipped vertically {flipped_ver_count}/{num_images} images ({100*flipped_ver_count/num_images:.1f}%)")
 
     print(f"Saved collage: {output_path}")
     return True
@@ -181,10 +190,17 @@ Examples:
     )
 
     parser.add_argument(
-        '--flip', '-f',
+        '--flip_hor',
         type=float,
         default=0.0,
         help='Probability (0.0-1.0) that each image will be flipped horizontally (default: 0.0)'
+    )
+
+    parser.add_argument(
+        '--flip_ver',
+        type=float,
+        default=0.0,
+        help='Probability (0.0-1.0) that each image will be flipped vertically (default: 0.0)'
     )
 
     parser.add_argument(
@@ -196,9 +212,12 @@ Examples:
 
     args = parser.parse_args()
 
-    # Validate flip parameter
-    if not 0.0 <= args.flip <= 1.0:
-        print(f"Error: flip must be between 0.0 and 1.0, got {args.flip}")
+    # Validate flip parameters
+    if not 0.0 <= args.flip_hor <= 1.0:
+        print(f"Error: flip_hor must be between 0.0 and 1.0, got {args.flip_hor}")
+        sys.exit(1)
+    if not 0.0 <= args.flip_ver <= 1.0:
+        print(f"Error: flip_ver must be between 0.0 and 1.0, got {args.flip_ver}")
         sys.exit(1)
 
     # Parse grid size
@@ -244,15 +263,26 @@ Examples:
 
     # Create collage
     num_images = cols * rows
-    flip_info = f" with {args.flip*100:.0f}% flip chance" if args.flip > 0 else ""
+    flip_info = ""
+    if args.flip_hor > 0:
+        flip_info += f" {args.flip_hor*100:.0f}% horizontal flip"
+    if args.flip_ver > 0:
+        if flip_info:
+            flip_info += ","
+        flip_info += f" {args.flip_ver*100:.0f}% vertical flip"
+    if flip_info:
+        flip_info = f" with{flip_info}"
+
     print(f"\nCreating {cols}x{rows} collage ({num_images} images){flip_info}...")
 
-    # Include flip value in filename
-    flip_str = f"_flip{args.flip:.2f}".replace('.', '_')
+    # Include flip values in filename
+    flip_str = ""
+    if args.flip_hor > 0 or args.flip_ver > 0:
+        flip_str = f"_fh{args.flip_hor:.2f}_fv{args.flip_ver:.2f}".replace('.', '_')
     output_filename = f"collage_{cols}x{rows}{flip_str}.png"
     output_path = os.path.join(output_dir, output_filename)
 
-    success = create_collage(image_files, cols, rows, output_path, args.flip)
+    success = create_collage(image_files, cols, rows, output_path, args.flip_hor, args.flip_ver)
 
     if success:
         # Calculate file size

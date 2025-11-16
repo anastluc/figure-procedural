@@ -39,7 +39,7 @@ Generate collages with randomized parameters on-demand - no pre-generation neede
 python3 dynamic_pipeline.py \
   --a='[100,150]' --b='[50,100]' --c='[40,60]' \
   --stroke_color=ff0000,00ff00,0000ff \
-  --grid_size 10x10 --flip 0.5 \
+  --grid_size 10x10 --flip_hor 0.5 --flip_ver 0.3 \
   --output_collage_file ./my_collage.png
 
 # Mix ranges and discrete values
@@ -78,7 +78,7 @@ python3 pipeline.py --a=100,130 --b=50,100 --output_folder ./my_figures --grid_s
 
 # Full pipeline with filtering and flipping
 python3 pipeline.py --a=100,150 --stroke_color=000000,444444 --output_folder ./figures \
-         --grid_size 8x8 --flip 0.5 --select_only_from "a100,col000000"
+         --grid_size 8x8 --flip_hor 0.5 --flip_ver 0.3 --select_only_from "a100,col000000"
 
 # Generate only (skip collage)
 python3 pipeline.py --a=100,130 --b=50,100 --output_folder ./figures --skip_collage
@@ -117,8 +117,8 @@ Includes angle parameters for more complex compositions.
 # Basic 5×5 grid collage
 python3 create_collages.py --grid_size 5x5 --images_folder ./data_simple
 
-# 10×10 grid with 50% horizontal flip chance
-python3 create_collages.py -g 10x10 -i ./data_simple --flip 0.5
+# 10×10 grid with 50% horizontal flip and 30% vertical flip
+python3 create_collages.py -g 10x10 -i ./data_simple --flip_hor 0.5 --flip_ver 0.3
 
 # Filter to only use images with specific parameters
 python3 create_collages.py -g 8x8 -i ./data_simple -s "a100,col444444"
@@ -136,7 +136,8 @@ python3 create_collages.py \
   --grid_size 10x16 \           # Grid dimensions (COLSxROWS)
   --images_folder ./data_simple \ # Source images folder
   --output_folder ./collages \   # Output directory (default: ./collages)
-  --flip 0.5 \                   # 50% chance to flip images horizontally
+  --flip_hor 0.5 \               # 50% chance to flip images horizontally
+  --flip_ver 0.3 \               # 30% chance to flip images vertically
   --select_only_from "a100,b50,col444444" # Filter images by parameters
 ```
 
@@ -177,12 +178,12 @@ python3 dynamic_pipeline.py --a='[100,150]' --b='[50,100]' --c='[40,60]' \
 ![Example 1](examples/dynamic_5x5_black_thin.png)
 
 ### 2. RGB Colors, Thick Lines (6×6)
-Primary colors with 30% flip
+Primary colors with 30% horizontal flip
 
 ```bash
 python3 dynamic_pipeline.py --a='[100,150]' --b='[50,100]' \
   --stroke_width=8 --stroke_color=ff0000,00ff00,0000ff \
-  --grid_size 6x6 --flip 0.3 \
+  --grid_size 6x6 --flip_hor 0.3 \
   --output_collage_file ./examples/dynamic_6x6_rgb_thick.png
 ```
 
@@ -194,7 +195,7 @@ Gray tones with mixed stroke widths
 ```bash
 python3 dynamic_pipeline.py --a='[80,120]' --b='[40,80]' \
   --stroke_width=4,6,8 --stroke_color=444444 \
-  --grid_size 8x8 --flip 0.5 \
+  --grid_size 8x8 --flip_hor 0.5 \
   --output_collage_file ./examples/dynamic_8x8_gray_varied.png
 ```
 
@@ -219,7 +220,7 @@ python3 dynamic_pipeline.py --a='[100,150]' --b='[50,100]' \
 python3 dynamic_pipeline.py --a='[120,140]' --b='[60,90]' \
   --stroke_width=2,4 \
   --stroke_color=000000,111111,222222,333333,444444,555555,666666,777777,888888,999999 \
-  --grid_size 10x10 --flip 0.4 \
+  --grid_size 10x10 --flip_hor 0.4 \
   --output_collage_file ./examples/dynamic_10x10_grayscale.png
 ```
 
@@ -231,7 +232,7 @@ Orange-red-gold palette
 ```bash
 python3 dynamic_pipeline.py --a=100,120,140 --b=50,75,100 \
   --stroke_width=10 --stroke_color=8b0000,ff4500,ffd700 \
-  --grid_size 3x6 --flip 0.2 \
+  --grid_size 3x6 --flip_hor 0.2 \
   --output_collage_file ./examples/dynamic_3x6_warm_discrete.png
 ```
 
@@ -243,7 +244,7 @@ Navy to sky blue, delicate strokes
 ```bash
 python3 dynamic_pipeline.py --a='[90,130]' --b='[45,85]' \
   --stroke_width=1,2,3 --stroke_color=000080,4169e1,87ceeb \
-  --grid_size 7x7 --flip 0.6 \
+  --grid_size 7x7 --flip_hor 0.6 \
   --output_collage_file ./examples/dynamic_7x7_blues_thin.png
 ```
 
@@ -256,7 +257,7 @@ Natural greens, consistent geometry
 python3 dynamic_pipeline.py --a='[110,130]' --b='[55,75]' \
   --c='[48,52]' --d='[28,32]' --stroke_width=6 \
   --stroke_color=228b22,32cd32,90ee90,006400 \
-  --grid_size 12x8 --flip 0.5 \
+  --grid_size 12x8 --flip_hor 0.5 \
   --output_collage_file ./examples/dynamic_12x8_greens_tight.png
 ```
 
@@ -269,7 +270,7 @@ Maximum variation in all parameters
 python3 dynamic_pipeline.py --a='[95,145]' --b='[48,98]' \
   --stroke_width='[3,10]' \
   --stroke_color=800080,9370db,ba55d3,dda0dd,ee82ee \
-  --grid_size 9x9 --flip 0.7 \
+  --grid_size 9x9 --flip_hor 0.7 \
   --output_collage_file ./examples/dynamic_9x9_purples_wild.png
 ```
 
@@ -294,7 +295,7 @@ Maximum variety - all parameters randomized
 python3 dynamic_pipeline.py --a='[100,150]' --b='[50,100]' \
   --stroke_width='[1,12]' \
   --stroke_color=000000,ff0000,00ff00,0000ff,ffff00,ff00ff,00ffff,ffffff \
-  --grid_size 15x10 --flip 0.5 \
+  --grid_size 15x10 --flip_hor 0.5 \
   --output_collage_file ./examples/dynamic_15x10_rainbow_chaos.png
 ```
 
@@ -346,7 +347,7 @@ This produces smooth, vector-like quality without actual vector rendering.
 ### Collage Features
 - **Sampling with replacement** - Can create grids larger than the source image pool
 - **Random selection** - Each collage is unique
-- **Horizontal flipping** - Probability-based variation (0.0-1.0)
+- **Horizontal & vertical flipping** - Independent probability-based variation (0.0-1.0)
 - **Parameter filtering** - Select subsets by generation parameters
 - **Unlimited grid sizes** - From 2×2 to 100×100+ grids
 

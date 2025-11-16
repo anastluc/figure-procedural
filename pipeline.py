@@ -75,10 +75,16 @@ Examples:
         help='Grid size for collage in format COLSxROWS (e.g., 10x10)'
     )
     collage_group.add_argument(
-        '--flip',
+        '--flip_hor',
         type=float,
         default=0.0,
         help='Probability (0.0-1.0) that each image will be flipped horizontally (default: 0.0)'
+    )
+    collage_group.add_argument(
+        '--flip_ver',
+        type=float,
+        default=0.0,
+        help='Probability (0.0-1.0) that each image will be flipped vertically (default: 0.0)'
     )
     collage_group.add_argument(
         '--select_only_from', '-s',
@@ -256,7 +262,8 @@ Examples:
                 '--grid_size', args.grid_size,
                 '--images_folder', args.output_folder,
                 '--output_folder', args.collage_output,
-                '--flip', str(args.flip)
+                '--flip_hor', str(args.flip_hor),
+                '--flip_ver', str(args.flip_ver)
             ]
 
             if args.select_only_from:

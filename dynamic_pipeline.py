@@ -145,10 +145,16 @@ Parameter Formats:
         help='Grid size for collage in format COLSxROWS (e.g., 10x10)'
     )
     collage_group.add_argument(
-        '--flip',
+        '--flip_hor',
         type=float,
         default=0.0,
         help='Probability (0.0-1.0) that each image will be flipped horizontally (default: 0.0)'
+    )
+    collage_group.add_argument(
+        '--flip_ver',
+        type=float,
+        default=0.0,
+        help='Probability (0.0-1.0) that each image will be flipped vertically (default: 0.0)'
     )
 
     args = parser.parse_args()
@@ -206,8 +212,10 @@ Parameter Formats:
         elif config[0] == 'single':
             print(f"  {key}: fixed value {config[1]}")
 
-    if args.flip > 0:
-        print(f"  flip: {args.flip*100:.0f}% chance per image")
+    if args.flip_hor > 0:
+        print(f"  flip_hor: {args.flip_hor*100:.0f}% chance per image")
+    if args.flip_ver > 0:
+        print(f"  flip_ver: {args.flip_ver*100:.0f}% chance per image")
 
     # Import generation function
     try:
@@ -230,7 +238,8 @@ Parameter Formats:
 
     # Generate images and build collage
     images = []
-    flip_count = 0
+    flip_hor_count = 0
+    flip_ver_count = 0
 
     for i in tqdm(range(total_images), desc="Generating images", unit="img"):
         # Randomly select parameter values
@@ -251,9 +260,14 @@ Parameter Formats:
         img = generate_figure(a, b, c, d, e, f, g, stroke_width, stroke_color)
 
         # Apply horizontal flip if needed
-        if random.random() < args.flip:
+        if random.random() < args.flip_hor:
             img = img.transpose(Image.FLIP_LEFT_RIGHT)
-            flip_count += 1
+            flip_hor_count += 1
+
+        # Apply vertical flip if needed
+        if random.random() < args.flip_ver:
+            img = img.transpose(Image.FLIP_TOP_BOTTOM)
+            flip_ver_count += 1
 
         # Save individual image if output folder specified
         if args.output_folder:
@@ -290,8 +304,10 @@ Parameter Formats:
     print("PIPELINE COMPLETE!")
     print("=" * 60)
     print(f"Generated {total_images} unique images")
-    if args.flip > 0:
-        print(f"Flipped {flip_count}/{total_images} images ({flip_count/total_images*100:.1f}%)")
+    if args.flip_hor > 0:
+        print(f"Flipped horizontally {flip_hor_count}/{total_images} images ({flip_hor_count/total_images*100:.1f}%)")
+    if args.flip_ver > 0:
+        print(f"Flipped vertically {flip_ver_count}/{total_images} images ({flip_ver_count/total_images*100:.1f}%)")
     print(f"\nCollage saved: {args.output_collage_file}")
     print(f"  Size: {collage_width}x{collage_height}px ({file_size_mb:.2f} MB)")
     if args.output_folder:
